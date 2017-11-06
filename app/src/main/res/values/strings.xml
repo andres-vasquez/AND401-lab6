@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">And401_lab6</string>
+    <string name="app_name">Almacenamiento Memoria</string>
+
+    <string name="hint_texto">Inserte el texto</string>
+    <string name="donde_guardarlo">Lugar para guardar el texto</string>
+    <string name="almacenamiento_interno">Internal Storage</string>
+    <string name="almacenmaiento_externo">External Storage</string>
+
+    <string name="resultados">Resultados!</string>
 </resources>
