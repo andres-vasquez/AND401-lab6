@@ -52,6 +52,11 @@
             android:drawableStart="@android:drawable/stat_notify_sdcard_usb"
             android:text="@string/almacenmaiento_externo" />
 
+        <Button
+            android:id="@+id/prefs_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Preferencias" />
     </LinearLayout>
 
     <LinearLayout

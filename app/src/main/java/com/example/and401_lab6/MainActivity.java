@@ -2,8 +2,10 @@ package com.example.and401_lab6;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -35,12 +38,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView mResultsEditText;
     private Button mInternaButton;
     private Button mExternaButton;
-
+    private Button mPrefsButton;
 
     //Menu variables
     private static final int ID_MENU_1 = 1;
     private static final int ID_MENU_2 = 2;
     private static final int ID_MENU_3 = 3;
+    private static final int ID_MENU_4 = 4;
 
     //Code for get the Callback in Runtime permisson check
     private static final int WRITE_PERMISSIOMN_CODE = 100;
@@ -57,13 +61,18 @@ public class MainActivity extends AppCompatActivity {
         mResultsEditText = (TextView) findViewById(R.id.resultados_text_view);
         mInternaButton = (Button) findViewById(R.id.interno_button);
         mExternaButton = (Button) findViewById(R.id.externo_button);
+        mPrefsButton = (Button)findViewById(R.id.prefs_button);
 
         mInternaButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 String textValue = mTextEditText.getText().toString();
                 try {
+                    OutputStreamWriter out = new OutputStreamWriter(openFileOutput("tekhne.txt",Context.MODE_PRIVATE));
+                    out.write(textValue);
+                    out.close();
 
+                    Toast.makeText(getApplicationContext(),"Guardado",Toast.LENGTH_SHORT).show();
                 } catch (Exception ex) {
                     Log.e(LOG, "Error saving the text into Internal Storage");
                 }
@@ -108,6 +117,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mPrefsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String textValue = mTextEditText.getText().toString();
+                SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("Brayan",textValue);
+                editor.apply();
+            }
+        });
     }
 
     /**
@@ -118,13 +138,25 @@ public class MainActivity extends AppCompatActivity {
 
         try
         {
-
+            File path = new File(Environment.getExternalStorageDirectory(),"Nilton.txt");
+            OutputStreamWriter out = new OutputStreamWriter(
+                    new FileOutputStream(path)
+            );
+            out.write(textValue);
+            out.close();
         }
         catch (Exception ex)
         {
             Log.e(LOG, "Error saving the text into External Storage");
         }
     }
+
+    /*@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,6 +165,8 @@ public class MainActivity extends AppCompatActivity {
         menu.add(Menu.NONE, ID_MENU_2, Menu.NONE, "Externa")
                 .setIcon(android.R.drawable.stat_notify_sdcard_prepare);
         menu.add(Menu.NONE, ID_MENU_3, Menu.NONE, "Recursos")
+                .setIcon(android.R.drawable.ic_dialog_info);
+        menu.add(Menu.NONE, ID_MENU_4, Menu.NONE, "Preferences")
                 .setIcon(android.R.drawable.ic_dialog_info);
         return true;
     }
@@ -145,7 +179,12 @@ public class MainActivity extends AppCompatActivity {
             case ID_MENU_1:
                 try
                 {
+                    BufferedReader arhivo = new BufferedReader(
+                            new InputStreamReader(openFileInput("tekhne.txt")));
+                    String texto = arhivo.readLine();
+                    arhivo.close();
 
+                    mResultsEditText.setText(texto);
                 }
                 catch (Exception ex)
                 {
@@ -155,7 +194,14 @@ public class MainActivity extends AppCompatActivity {
             case ID_MENU_2:
                 try
                 {
+                    File path = new File(Environment.getExternalStorageDirectory(),"Nilton.txt");
 
+                    BufferedReader arhivo = new BufferedReader(
+                            new InputStreamReader(new FileInputStream(path)));
+                    String texto = arhivo.readLine();
+                    arhivo.close();
+
+                    mResultsEditText.setText(texto);
                 }
                 catch (Exception ex)
                 {
@@ -166,12 +212,26 @@ public class MainActivity extends AppCompatActivity {
             case ID_MENU_3:
                 try
                 {
+                    InputStream ruta = getResources().openRawResource(R.raw.prueba_csv);
+                    BufferedReader arhivo = new BufferedReader(
+                            new InputStreamReader(ruta));
 
+                    mResultsEditText.setText("");
+                    String fila ="";
+                    while ((fila=arhivo.readLine())!=null){
+                        mResultsEditText.append(fila+"\n");
+                    }
+                    arhivo.close();
                 }
                 catch (Exception ex)
                 {
                     Log.e(LOG, "Error reading the text from RAW resource");
                 }
+                return true;
+            case ID_MENU_4:
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    String valor = prefs.getString("Brayan","");
+                mResultsEditText.setText(valor);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
